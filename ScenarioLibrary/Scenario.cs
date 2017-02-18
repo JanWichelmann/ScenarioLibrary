@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ScenarioLibrary
 {
-    public class Class1
+    public class Scenario
     {
     }
 }
