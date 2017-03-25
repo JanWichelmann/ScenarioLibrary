@@ -41,8 +41,30 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataElements\GlobalVictory.cs" />
+    <Compile Include="DataElements\Diplomacy.cs" />
+    <Compile Include="DataElements\Disables.cs" />
+    <Compile Include="DataElements\Map.cs" />
+    <Compile Include="DataElements\Units.cs" />
+    <Compile Include="DataElements\PlayerDiplomacyVarious.cs" />
+    <Compile Include="DataElements\Triggers.cs" />
+    <Compile Include="DataElements\IncludedFiles.cs" />
+    <Compile Include="DataElements\PlayerAiResources.cs" />
+    <Compile Include="DataElements\MessagesCinematics.cs" />
+    <Compile Include="DataElements\Header.cs" />
+    <Compile Include="ScenarioDataElementTools.cs" />
     <Compile Include="Scenario.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\BitmapLibrary\BitmapLibrary\BitmapLibrary.csproj">
+      <Project>{328b4638-6a65-4a99-aae4-768d98091a40}</Project>
+      <Name>BitmapLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\IORAMHelper\IORAMHelper\IORAMHelper.csproj">
+      <Project>{e916caa5-59a9-4f62-a8fb-0ceec2d840b8}</Project>
+      <Name>IORAMHelper</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

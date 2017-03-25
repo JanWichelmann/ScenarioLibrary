@@ -351,7 +351,7 @@ s32    |        | Seems to be 0 if Unknown == 1.0, -1 if Unknown == 2.0
 length | minver | description
 ---------------------------------------------------------------------
 s8     |        | Unknown == 0
-s32    |        | Number of triggers = 0
+s32    |        | Number of triggers = N
 N*var  |        | Trigger data, see sub-struct below
 N*u32  |        | Trigger display order array
 
