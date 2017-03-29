@@ -44,9 +44,9 @@ namespace ScenarioLibrary.DataElements
 		public uint MapHeight { get; set; }
 
 		/// <summary>
-		/// The terrain data for all map tiles. Length: MapWidth * MapHeight.
+		/// The terrain data for all map tiles. Length: [MapWidth][MapHeight].
 		/// </summary>
-		public List<MapTileTerrainData> Tiles { get; set; }
+		public List<List<MapTileTerrainData>> Tiles { get; set; }
 
 		#endregion
 
@@ -67,10 +67,13 @@ namespace ScenarioLibrary.DataElements
 			MapWidth = buffer.ReadUInteger();
 			MapHeight = buffer.ReadUInteger();
 
-			Tiles = new List<MapTileTerrainData>((int)MapWidth * (int)MapHeight);
-			for(int i = 0; i < MapWidth * MapHeight; ++i)
-				Tiles.Add(new MapTileTerrainData().ReadData(buffer));
-
+			Tiles = new List<List<MapTileTerrainData>>((int)MapWidth);
+			for(int i = 0; i < MapWidth; ++i)
+			{
+				Tiles.Add(new List<MapTileTerrainData>((int)MapHeight));
+				for(int j = 0; j < MapHeight; ++j)
+					Tiles[i].Add(new MapTileTerrainData().ReadData(buffer));
+			}
 			return this;
 		}
 
@@ -88,8 +91,12 @@ namespace ScenarioLibrary.DataElements
 			buffer.WriteUInteger(MapWidth);
 			buffer.WriteUInteger(MapHeight);
 
-			ScenarioDataElementTools.AssertListLength(Tiles, (int)MapWidth * (int)MapHeight);
-			Tiles.ForEach(t => t.WriteData(buffer));
+			ScenarioDataElementTools.AssertListLength(Tiles, (int)MapWidth);
+			Tiles.ForEach(i =>
+			{
+				ScenarioDataElementTools.AssertListLength(i, (int)MapHeight);
+				i.ForEach(j => j.WriteData(buffer));
+			});
 		}
 
 		#endregion

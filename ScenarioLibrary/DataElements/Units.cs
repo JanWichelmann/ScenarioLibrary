@@ -208,14 +208,14 @@ namespace ScenarioLibrary.DataElements
 			public float PositionY { get; set; }
 
 			/// <summary>
-			/// Unknown. Always 2?
+			/// The unit Z coordinate.
 			/// </summary>
-			public float Unknown1 { get; set; }
+			public float PositionZ { get; set; }
 
 			/// <summary>
 			/// The unit instance ID.
 			/// </summary>
-			public int Id { get; set; }
+			public uint Id { get; set; }
 
 			/// <summary>
 			/// The unit ID.
@@ -223,9 +223,9 @@ namespace ScenarioLibrary.DataElements
 			public ushort UnitId { get; set; }
 
 			/// <summary>
-			/// Unknown. Always 2?
+			/// Unit state. Always 2.
 			/// </summary>
-			public byte Unknown2 { get; set; }
+			public byte State { get; set; }
 
 			/// <summary>
 			/// The initial rotation in radians.
@@ -254,10 +254,10 @@ namespace ScenarioLibrary.DataElements
 			{
 				PositionX = buffer.ReadFloat();
 				PositionY = buffer.ReadFloat();
-				Unknown1 = buffer.ReadFloat();
-				Id = buffer.ReadInteger();
+				PositionZ = buffer.ReadFloat();
+				Id = buffer.ReadUInteger();
 				UnitId = buffer.ReadUShort();
-				Unknown2 = buffer.ReadByte();
+				State = buffer.ReadByte();
 				Rotation = buffer.ReadFloat();
 				Frame = buffer.ReadUShort();
 				GarrisonId = buffer.ReadInteger();
@@ -273,10 +273,10 @@ namespace ScenarioLibrary.DataElements
 			{
 				buffer.WriteFloat(PositionX);
 				buffer.WriteFloat(PositionY);
-				buffer.WriteFloat(Unknown1);
-				buffer.WriteInteger(Id);
+				buffer.WriteFloat(PositionZ);
+				buffer.WriteUInteger(Id);
 				buffer.WriteUShort(UnitId);
-				buffer.WriteByte(Unknown2);
+				buffer.WriteByte(State);
 				buffer.WriteFloat(Rotation);
 				buffer.WriteUShort(Frame);
 				buffer.WriteInteger(GarrisonId);

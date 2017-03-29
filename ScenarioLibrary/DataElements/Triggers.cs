@@ -28,7 +28,7 @@ namespace ScenarioLibrary.DataElements
 		/// <summary>
 		/// The trigger display indices. Should have the same length as TriggerData.
 		/// </summary>
-		public List<uint> TriggerDisplayIndices { get; set; }
+		public List<int> TriggerDisplayIndices { get; set; }
 
 		#endregion
 
@@ -46,9 +46,9 @@ namespace ScenarioLibrary.DataElements
 			TriggerData = new List<Trigger>(triggerCount);
 			for(int i = 0; i < triggerCount; i++)
 				TriggerData.Add(new Trigger().ReadData(buffer));
-			TriggerDisplayIndices = new List<uint>(triggerCount);
+			TriggerDisplayIndices = new List<int>(triggerCount);
 			for(int i = 0; i < triggerCount; i++)
-				TriggerDisplayIndices.Add(buffer.ReadUInteger());
+				TriggerDisplayIndices.Add(buffer.ReadInteger());
 
 			return this;
 		}
@@ -64,7 +64,7 @@ namespace ScenarioLibrary.DataElements
 			ScenarioDataElementTools.AssertTrue(TriggerData.Count == TriggerDisplayIndices.Count);
 			buffer.WriteInteger(TriggerData.Count);
 			TriggerData.ForEach(t => t.WriteData(buffer));
-			TriggerDisplayIndices.ForEach(t => buffer.WriteUInteger(t));
+			TriggerDisplayIndices.ForEach(t => buffer.WriteInteger(t));
 		}
 
 		#endregion
@@ -77,13 +77,13 @@ namespace ScenarioLibrary.DataElements
 		public class Trigger
 		{
 			#region Fields
-			
+
 			public uint Enabled { get; set; }
 			public uint Looping { get; set; }
-			public byte Unknown1 { get; set; }
+			public byte State { get; set; }
 			public byte ShowAsObjective { get; set; }
 			public int ObjectiveDescriptionIndex { get; set; }
-			public uint Unknown2 { get; set; }
+			public uint Unknown { get; set; }
 			public string Description { get; set; }
 			public string Name { get; set; }
 			public List<Effect> Effects { get; set; }
@@ -103,10 +103,10 @@ namespace ScenarioLibrary.DataElements
 			{
 				Enabled = buffer.ReadUInteger();
 				Looping = buffer.ReadUInteger();
-				Unknown1 = buffer.ReadByte();
+				State = buffer.ReadByte();
 				ShowAsObjective = buffer.ReadByte();
 				ObjectiveDescriptionIndex = buffer.ReadInteger();
-				Unknown2 = buffer.ReadUInteger();
+				Unknown = buffer.ReadUInteger();
 
 				Description = buffer.ReadString(buffer.ReadInteger());
 				Name = buffer.ReadString(buffer.ReadInteger());
@@ -138,14 +138,19 @@ namespace ScenarioLibrary.DataElements
 			{
 				buffer.WriteUInteger(Enabled);
 				buffer.WriteUInteger(Looping);
-				
-				buffer.WriteByte(Unknown1);
+
+				buffer.WriteByte(State);
 				buffer.WriteByte(ShowAsObjective);
 				buffer.WriteInteger(ObjectiveDescriptionIndex);
-				buffer.WriteUInteger(Unknown2);
+				buffer.WriteUInteger(Unknown);
 
+				if(Description.Length == 0 || Description.Last() != '\0')
+					Description += '\0';
 				buffer.WriteInteger(Description.Length);
 				buffer.WriteString(Description);
+
+				if(Name.Length == 0 || Name.Last() != '\0')
+					Name += '\0';
 				buffer.WriteInteger(Name.Length);
 				buffer.WriteString(Name);
 
@@ -161,6 +166,29 @@ namespace ScenarioLibrary.DataElements
 			}
 
 			#endregion
+
+			#region Static auxiliary functions
+
+			public static Trigger CreateNew(string name, string description, bool enabled, bool loop, bool showAsObjective, int objectiveIndex)
+			{
+				return new Trigger()
+				{
+					ConditionDisplayIndices = new List<int>(),
+					Conditions = new List<Condition>(),
+					Description = description,
+					EffectDisplayIndices = new List<int>(),
+					Effects = new List<Effect>(),
+					Enabled = (uint)(enabled ? 1 : 0),
+					Looping = (uint)(loop ? 1 : 0),
+					Name = name,
+					ObjectiveDescriptionIndex = objectiveIndex,
+					ShowAsObjective = (byte)(showAsObjective ? 1 : 0),
+					State = 0,
+					Unknown = 0
+				};
+			}
+
+			#endregion
 		}
 
 		/// <summary>
@@ -171,22 +199,22 @@ namespace ScenarioLibrary.DataElements
 			#region Fields
 
 			public ConditionTypes Type { get; set; }
-			public uint Amount { get; set; }
-			public uint ResourceId { get; set; }
-			public uint UnitInstanceId { get; set; }
-			public uint UnitLocation { get; set; }
-			public uint UnitType { get; set; }
-			public uint Player { get; set; }
-			public uint ResearchId { get; set; }
-			public uint Timer { get; set; }
-			public uint Unknown { get; set; }
-			public uint AreaBottomLeftX { get; set; }
-			public uint AreaBottomLeftY { get; set; }
-			public uint AreaTopRightX { get; set; }
-			public uint AreaTopRightY { get; set; }
-			public uint UnitClass { get; set; }
-			public uint UnitType2 { get; set; }
-			public uint AiSignal { get; set; }
+			public int Amount { get; set; }
+			public int ResourceId { get; set; }
+			public int UnitInstanceId { get; set; }
+			public int UnitLocation { get; set; }
+			public int UnitType { get; set; }
+			public int Player { get; set; }
+			public int ResearchId { get; set; }
+			public int Timer { get; set; }
+			public int Unknown { get; set; }
+			public int AreaBottomLeftX { get; set; }
+			public int AreaBottomLeftY { get; set; }
+			public int AreaTopRightX { get; set; }
+			public int AreaTopRightY { get; set; }
+			public int UnitClass { get; set; }
+			public int UnitType2 { get; set; }
+			public int AiSignal { get; set; }
 
 			#endregion
 
@@ -202,22 +230,22 @@ namespace ScenarioLibrary.DataElements
 
 				ScenarioDataElementTools.AssertTrue(buffer.ReadUInteger() == 0x00000010);
 
-				Amount = buffer.ReadUInteger();
-				ResourceId = buffer.ReadUInteger();
-				UnitInstanceId = buffer.ReadUInteger();
-				UnitLocation = buffer.ReadUInteger();
-				UnitType = buffer.ReadUInteger();
-				Player = buffer.ReadUInteger();
-				ResearchId = buffer.ReadUInteger();
-				Timer = buffer.ReadUInteger();
-				Unknown = buffer.ReadUInteger();
-				AreaBottomLeftX = buffer.ReadUInteger();
-				AreaBottomLeftY = buffer.ReadUInteger();
-				AreaTopRightX = buffer.ReadUInteger();
-				AreaTopRightY = buffer.ReadUInteger();
-				UnitClass = buffer.ReadUInteger();
-				UnitType2 = buffer.ReadUInteger();
-				AiSignal = buffer.ReadUInteger();
+				Amount = buffer.ReadInteger();
+				ResourceId = buffer.ReadInteger();
+				UnitInstanceId = buffer.ReadInteger();
+				UnitLocation = buffer.ReadInteger();
+				UnitType = buffer.ReadInteger();
+				Player = buffer.ReadInteger();
+				ResearchId = buffer.ReadInteger();
+				Timer = buffer.ReadInteger();
+				Unknown = buffer.ReadInteger();
+				AreaBottomLeftX = buffer.ReadInteger();
+				AreaBottomLeftY = buffer.ReadInteger();
+				AreaTopRightX = buffer.ReadInteger();
+				AreaTopRightY = buffer.ReadInteger();
+				UnitClass = buffer.ReadInteger();
+				UnitType2 = buffer.ReadInteger();
+				AiSignal = buffer.ReadInteger();
 
 				return this;
 			}
@@ -232,22 +260,22 @@ namespace ScenarioLibrary.DataElements
 
 				buffer.WriteUInteger(0x00000010);
 
-				buffer.WriteUInteger(Amount);
-				buffer.WriteUInteger(ResourceId);
-				buffer.WriteUInteger(UnitInstanceId);
-				buffer.WriteUInteger(UnitLocation);
-				buffer.WriteUInteger(UnitType);
-				buffer.WriteUInteger(Player);
-				buffer.WriteUInteger(ResearchId);
-				buffer.WriteUInteger(Timer);
-				buffer.WriteUInteger(Unknown);
-				buffer.WriteUInteger(AreaBottomLeftX);
-				buffer.WriteUInteger(AreaBottomLeftY);
-				buffer.WriteUInteger(AreaTopRightX);
-				buffer.WriteUInteger(AreaTopRightY);
-				buffer.WriteUInteger(UnitClass);
-				buffer.WriteUInteger(UnitType2);
-				buffer.WriteUInteger(AiSignal);
+				buffer.WriteInteger(Amount);
+				buffer.WriteInteger(ResourceId);
+				buffer.WriteInteger(UnitInstanceId);
+				buffer.WriteInteger(UnitLocation);
+				buffer.WriteInteger(UnitType);
+				buffer.WriteInteger(Player);
+				buffer.WriteInteger(ResearchId);
+				buffer.WriteInteger(Timer);
+				buffer.WriteInteger(Unknown);
+				buffer.WriteInteger(AreaBottomLeftX);
+				buffer.WriteInteger(AreaBottomLeftY);
+				buffer.WriteInteger(AreaTopRightX);
+				buffer.WriteInteger(AreaTopRightY);
+				buffer.WriteInteger(UnitClass);
+				buffer.WriteInteger(UnitType2);
+				buffer.WriteInteger(AiSignal);
 			}
 
 			#endregion
@@ -267,7 +295,7 @@ namespace ScenarioLibrary.DataElements
 				DestroyObject = 6,
 				CaptureObject = 7,
 				AccumulateAttribute = 8,
-				ResearchTehcnology = 9,
+				ResearchTechnology = 9,
 				Timer = 10,
 				ObjectSelected = 11,
 				AiSignal = 12,
@@ -282,6 +310,58 @@ namespace ScenarioLibrary.DataElements
 				SelectedObjectsInArea = 21,
 				PoweredObjectsInArea = 22,
 				UnitsQueuedPastPopCap = 23
+			}
+
+			#endregion
+
+			#region Static auxiliary functions
+
+			public static Condition CreateTimerCondition(int timer)
+			{
+				return new Condition()
+				{
+					AiSignal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Player = -1,
+					ResearchId = -1,
+					ResourceId = -1,
+					Timer = timer,
+					Type = ConditionTypes.Timer,
+					UnitClass = -1,
+					UnitInstanceId = -1,
+					UnitLocation = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					Unknown = -1
+				};
+			}
+
+			public static Condition CreateDestroyObjectCondition(uint unitInstanceId, int player)
+			{
+				return new Condition()
+				{
+					AiSignal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Player = player,
+					ResearchId = -1,
+					ResourceId = -1,
+					Timer = -1,
+					Type = ConditionTypes.DestroyObject,
+					UnitClass = -1,
+					UnitInstanceId = (int)unitInstanceId,
+					UnitLocation = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					Unknown = -1
+				};
 			}
 
 			#endregion
@@ -305,7 +385,7 @@ namespace ScenarioLibrary.DataElements
 			public int PlayerTarget { get; set; }
 			public int ResearchId { get; set; }
 			public int StringId { get; set; }
-			public int Unknown { get; set; }
+			public int SoundId { get; set; }
 			public int DisplayTime { get; set; }
 			public int TriggerIndex { get; set; }
 			public int LocationX { get; set; }
@@ -350,8 +430,8 @@ namespace ScenarioLibrary.DataElements
 				PlayerTarget = buffer.ReadInteger();
 				ResearchId = buffer.ReadInteger();
 				StringId = buffer.ReadInteger();
-				Unknown = buffer.ReadInteger();
-				DisplayTime= buffer.ReadInteger();
+				SoundId = buffer.ReadInteger();
+				DisplayTime = buffer.ReadInteger();
 				TriggerIndex = buffer.ReadInteger();
 				LocationX = buffer.ReadInteger();
 				LocationY = buffer.ReadInteger();
@@ -396,7 +476,7 @@ namespace ScenarioLibrary.DataElements
 				buffer.WriteInteger(PlayerTarget);
 				buffer.WriteInteger(ResearchId);
 				buffer.WriteInteger(StringId);
-				buffer.WriteInteger(Unknown);
+				buffer.WriteInteger(SoundId);
 				buffer.WriteInteger(DisplayTime);
 				buffer.WriteInteger(TriggerIndex);
 				buffer.WriteInteger(LocationX);
@@ -409,8 +489,13 @@ namespace ScenarioLibrary.DataElements
 				buffer.WriteInteger(UnitType2);
 				buffer.WriteInteger(InstructionPanel);
 
+				if(Text.Length == 0 || Text.Last() != '\0')
+					Text += '\0';
 				buffer.WriteInteger(Text.Length);
 				buffer.WriteString(Text);
+
+				if(SoundFileName.Length == 0 || SoundFileName.Last() != '\0')
+					SoundFileName += '\0';
 				buffer.WriteInteger(SoundFileName.Length);
 				buffer.WriteString(SoundFileName);
 
@@ -462,6 +547,142 @@ namespace ScenarioLibrary.DataElements
 				EnableUnit = 34,
 				DisableUnit = 35,
 				FlashObjects = 36
+			}
+
+			#endregion
+
+			#region Static auxiliary functions
+
+			public static Effect CreateRenamingEffect(uint unitInstanceId, string newName)
+			{
+				return new Effect()
+				{
+					AiGoal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Diplomacy = -1,
+					DisplayTime = -1,
+					InstructionPanel = -1,
+					LocationUnitInstanceId = -1,
+					LocationX = -1,
+					LocationY = -1,
+					PlayerSource = -1,
+					PlayerTarget = -1,
+					ResearchId = -1,
+					ResourceId = -1,
+					SelectedUnitInstanceIds = new List<uint>(new uint[] { unitInstanceId }),
+					SoundFileName = "",
+					StringId = -1,
+					Text = newName,
+					TriggerIndex = -1,
+					Type = EffectTypes.ChangeObjectName,
+					UnitClass = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					SoundId = -1
+				};
+			}
+
+			public static Effect CreateTaskObjectEffect(uint unitInstanceId, int targetUnitInstanceId, int player)
+			{
+				return new Effect()
+				{
+					AiGoal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Diplomacy = -1,
+					DisplayTime = -1,
+					InstructionPanel = -1,
+					LocationUnitInstanceId = targetUnitInstanceId,
+					LocationX = -1,
+					LocationY = -1,
+					PlayerSource = player,
+					PlayerTarget = -1,
+					ResearchId = -1,
+					ResourceId = -1,
+					SelectedUnitInstanceIds = new List<uint>(new uint[] { unitInstanceId }),
+					SoundFileName = "",
+					StringId = -1,
+					Text = "",
+					TriggerIndex = -1,
+					Type = EffectTypes.TaskObject,
+					UnitClass = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					SoundId = -1
+				};
+			}
+
+			public static Effect CreateActivateTriggerEffect(int triggerIndex)
+			{
+				return new Effect()
+				{
+					AiGoal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Diplomacy = -1,
+					DisplayTime = -1,
+					InstructionPanel = -1,
+					LocationUnitInstanceId = -1,
+					LocationX = -1,
+					LocationY = -1,
+					PlayerSource = -1,
+					PlayerTarget = -1,
+					ResearchId = -1,
+					ResourceId = -1,
+					SelectedUnitInstanceIds = new List<uint>(),
+					SoundFileName = "",
+					StringId = -1,
+					Text = "",
+					TriggerIndex = triggerIndex,
+					Type = EffectTypes.ActivateTrigger,
+					UnitClass = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					SoundId = -1
+				};
+			}
+
+			public static Effect CreateResearchTechnologyEffect(int researchId, int player)
+			{
+				return new Effect()
+				{
+					AiGoal = -1,
+					Amount = -1,
+					AreaBottomLeftX = -1,
+					AreaBottomLeftY = -1,
+					AreaTopRightX = -1,
+					AreaTopRightY = -1,
+					Diplomacy = -1,
+					DisplayTime = -1,
+					InstructionPanel = -1,
+					LocationUnitInstanceId = -1,
+					LocationX = -1,
+					LocationY = -1,
+					PlayerSource = player,
+					PlayerTarget = -1,
+					ResearchId = researchId,
+					ResourceId = -1,
+					SelectedUnitInstanceIds = new List<uint>(),
+					SoundFileName = "",
+					StringId = -1,
+					Text = "",
+					TriggerIndex = -1,
+					Type = EffectTypes.ResearchTechnology,
+					UnitClass = -1,
+					UnitType = -1,
+					UnitType2 = -1,
+					SoundId = -1
+				};
 			}
 
 			#endregion
